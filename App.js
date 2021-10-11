@@ -1,9 +1,12 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+
+// componets
+import SignUp from "./screens/Signup";
 import Login from './screens/Login';
+import Welcome from './screens/Welcome';
 
 export default function App() {
   return (
-    <Login/>
+    <Welcome/>
   );
 }

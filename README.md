@@ -6,6 +6,6 @@
 
 ## Starting the application
 
-# yarn start / npm start
+# expo start / yarn start
 
 - Dev: Ryan Nograles
