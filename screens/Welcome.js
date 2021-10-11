@@ -15,7 +15,7 @@ import {
     WelcomeImage
 } from '../components/style';
 
-const Welcome = () => {
+const Welcome = ({ navigation }) => {
     return (
         <>
             <StatusBar style='light'/>
@@ -33,7 +33,7 @@ const Welcome = () => {
                             resizeMode = "cover"
                             source={require('./../assets/ako.jpg')} 
                         />
-                        <StyledButton onPress={() => {}}>
+                        <StyledButton onPress={() =>  navigation.navigate("Login")}>
                             <ButtonText>
                                 Logout
                             </ButtonText>

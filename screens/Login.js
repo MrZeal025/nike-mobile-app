@@ -32,7 +32,7 @@ import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons"
 // deconstruction section
 const { darkLight, brand, primary } = Colors;
 
-const Login = () => {
+const Login = ({navigation}) => {
 
     const [hidePassword, setHidePassword] = useState(true);
 
@@ -51,6 +51,7 @@ const Login = () => {
                         initialValues={{ email: "", password: ""}}
                         onSubmit={(values) => {
                             console.log(values)
+                            navigation.navigate("Welcome");
                         }}
                     >
                         {/* this if the function to handle the form interaction */}
@@ -95,7 +96,7 @@ const Login = () => {
                                     </StyledButton>
                                     <ExtraView>
                                         <ExtraText>Don't have an account already? </ExtraText>
-                                    <TextLink>
+                                    <TextLink onPress={() => navigation.navigate("Sign Up")}>
                                             <TextLinkContent>
                                                 Sign Up!
                                             </TextLinkContent>

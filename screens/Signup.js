@@ -33,7 +33,7 @@ import { Octicons, Ionicons } from "@expo/vector-icons"
 // deconstruction section
 const { darkLight, brand } = Colors;
 
-const SignUp = () => {
+const SignUp = ({ navigation }) => {
 
     const [hidePassword, setHidePassword] = useState(true);
     const [showDateTimePicker, setShowDateTimePicker] = useState(false);
@@ -74,6 +74,7 @@ const SignUp = () => {
                         initialValues={{ fullName: "", email: "", dataOfBirth: "", password: "", confirmPassword: "" }}
                         onSubmit={(values) => {
                             console.log(values)
+                            navigation.navigate("Welcome")
                         }}
                     >
                         {/* this if the function to handle the form interaction */}
@@ -146,7 +147,7 @@ const SignUp = () => {
                                     <Line/>
                                     <ExtraView>
                                         <ExtraText>Already have an account? </ExtraText>
-                                        <TextLink>
+                                        <TextLink onPress={() =>  navigation.navigate("Login")}>
                                             <TextLinkContent>
                                                 Sign In!
                                             </TextLinkContent>

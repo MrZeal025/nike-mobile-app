@@ -20,7 +20,7 @@ const { primary, secondary, tertiary, darkLight, brand, green } = Colors;
 export const StyledContainer = styled.View`
     flex: 1;
     padding: 25px;
-    padding-top: ${StatusBarHeight + 10}px;
+    padding-top: ${StatusBarHeight + 50}px;
     background-color: ${primary};
 `;
 
@@ -37,7 +37,7 @@ export const WelcomeContainer = styled(InnerContainer)`
 `;
 
 export const PageLogo = styled.Image`
-    width: 100%;
+    width: 65%;
     height: 150px;
 `;
 
@@ -53,7 +53,7 @@ export const Avatar = styled.Image`
 `;
 
 export const WelcomeImage = styled.Image`
-    height: 50%;
+    height: 65%;
     min-width: 100%;
 `;
 
