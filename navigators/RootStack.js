@@ -19,11 +19,9 @@ const RootStack = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                options={{ headerShadowVisible: false, headerTransparent: true }}
                 screenOptions={{
                     headerStyle: {
                         backgroundColor: 'transparent'
-                        
                     },
                     headerTintColor: tertiary,
                     headerTransparent: true,
@@ -31,9 +29,9 @@ const RootStack = () => {
                 }}
                 initialRouteName='Login'
             >
-                <Stack.Screen options={{ headerTintColor: primary }} name="Login" component={Login} />
-                <Stack.Screen name="Sign Up" component={SignUp} />
-                <Stack.Screen options={{ headerTintColor: primary }} name="Welcome" component={Welcome} />
+                <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Login" component={Login} />
+                <Stack.Screen options={{ headerShadowVisible: false}} name="Sign Up" component={SignUp} />
+                <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Welcome" component={Welcome} />
             </Stack.Navigator>
         </NavigationContainer>
     )
