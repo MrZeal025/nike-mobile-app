@@ -30,16 +30,25 @@ import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
 // icons
 import { Octicons, Ionicons } from "@expo/vector-icons"
 
+// apis
+ import axios from "axios";
+
 // deconstruction section
 const { darkLight, brand } = Colors;
 
 const SignUp = ({ navigation }) => {
 
+    // behaviors
     const [hidePassword, setHidePassword] = useState(true);
     const [showDateTimePicker, setShowDateTimePicker] = useState(false);
     const [date, setDate] = useState(new Date(2000, 0, 1));
+
     // actual date of birth
     const [dateOfBirth, setDateofBirth] = useState('');
+
+    // message displays
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState("");
 
     const onChangeDatePicker = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -47,10 +56,28 @@ const SignUp = ({ navigation }) => {
         setShowDateTimePicker(false);
         setDate(currentDate);
         setDateofBirth(currentDate);
+
+        console.log(dateOfBirth)
     }
 
     const showDatePicker = () => {
         setShowDateTimePicker(true);
+    }
+
+    // form handling
+
+    const handleSignUp =  (credentials, setSubmitting) => {
+
+        const url = "http://192.168.2.2:5000/api/auth/users/sign-up"
+        console.log(credentials)
+        axios
+            .post(url, credentials, {'Content-Type': 'application/json'})
+            .then((response) => {
+                console.log(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
     }
 
     return (
@@ -62,19 +89,19 @@ const SignUp = ({ navigation }) => {
                     <SubTitle>Account Sign Up</SubTitle>
                     {showDateTimePicker && (
                         <DateTimePicker
-                        testID="dateTimePicker"
-                        value={date}
-                        mode="date"
-                        is24Hour={true}
-                        display="default"
-                        onChange={onChangeDatePicker}
+                            testID="dateTimePicker"
+                            value={date}
+                            mode="date"
+                            is24Hour={true}
+                            display="default"
+                            onChange={onChangeDatePicker}
                         />
                     )}
                     <Formik 
-                        initialValues={{ fullName: "", email: "", dataOfBirth: "", password: "", confirmPassword: "" }}
+                        initialValues={{ fullName: "", email: "", dateOfBirth: "", password: "", confirmPassword: "" }}
                         onSubmit={(values) => {
-                            console.log(values)
-                            navigation.navigate("Welcome")
+                            values = {...values, dateOfBirth: dateOfBirth }
+                            handleSignUp(values)
                         }}
                     >
                         {/* this if the function to handle the form interaction */}
@@ -107,7 +134,7 @@ const SignUp = ({ navigation }) => {
                                         placeholderTextColor={darkLight}
                                         onChangeText={handleChange('dateOfBirth')}
                                         onBlur={handleBlur('dateOfBirth')}
-                                        value={dateOfBirth ? dateOfBirth.toDateString(): ''}
+                                        value={dateOfBirth ? dateOfBirth.toDateString(): 'test'}
                                         isDate={true}
                                         editable={false}
                                         showDatePicker={showDatePicker}
