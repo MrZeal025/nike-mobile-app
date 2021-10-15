@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 // components
 import { StatusBar } from 'expo-status-bar';
 import { View, TouchableOpacity } from 'react-native';
@@ -38,6 +38,22 @@ const { darkLight, brand } = Colors;
 
 const SignUp = ({ navigation }) => {
 
+    async function fetchData() {
+        try {
+            const data = await axios.get(`https://lit-spire-85210.herokuapp.com/api/user/${`6168fe990e66aa21c0eb0ec2`}`);
+            console.log(data.data)
+        } catch (error) {
+            console.log(error.response.data)
+        }
+    }
+
+    useEffect(() => {
+        
+       fetchData()
+
+    },[])
+
+
     // behaviors
     const [hidePassword, setHidePassword] = useState(true);
     const [showDateTimePicker, setShowDateTimePicker] = useState(false);
@@ -64,22 +80,6 @@ const SignUp = ({ navigation }) => {
         setShowDateTimePicker(true);
     }
 
-    // form handling
-
-    const handleSignUp =  (credentials, setSubmitting) => {
-
-        const url = "http://192.168.2.2:5000/api/auth/users/sign-up"
-        console.log(credentials)
-        axios
-            .post(url, credentials, {'Content-Type': 'application/json'})
-            .then((response) => {
-                console.log(response.data)
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
-
     return (
         <KeyboardAvoidingWrapper>
             <StyledContainer>
@@ -101,7 +101,6 @@ const SignUp = ({ navigation }) => {
                         initialValues={{ fullName: "", email: "", dateOfBirth: "", password: "", confirmPassword: "" }}
                         onSubmit={(values) => {
                             values = {...values, dateOfBirth: dateOfBirth }
-                            handleSignUp(values)
                         }}
                     >
                         {/* this if the function to handle the form interaction */}
