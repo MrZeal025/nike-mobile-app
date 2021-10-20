@@ -3,9 +3,8 @@ import React, { useState } from 'react'
 import { StatusBar } from 'expo-status-bar';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
-import * as yup from "yup";
+import { signUpValidationSchema } from "../validations/auth";
 import DateTimePicker from '@react-native-community/datetimepicker';
-
 // styles
 import { 
     StyledContainer, 
@@ -31,10 +30,8 @@ import {
 import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
 // icons
 import { Octicons, Ionicons } from "@expo/vector-icons"
-
 // apis
 import { userSignUp } from '../apis/authentication';
-
 // deconstruction section
 const { darkLight, brand, primary } = Colors;
 
@@ -64,22 +61,7 @@ const SignUp = ({ navigation }) => {
         setShowDateTimePicker(true);
     }
 
-    // this will be the sign up validations
-    const signUpValidationSchema = yup.object().shape({
-        fullName: yup.string().required("Fullname is required"),
-        email: yup
-            .string()
-            .email("Please enter valid email")
-            .required('Email Address is Required'),
-        password: yup
-            .string()
-            .min(8, ({ min }) => `Password must be at least ${min} characters`)
-            .required('Password is required'),
-        confirmPassword: yup
-            .string()
-            .min(8, ({ min }) => `Password must be at least ${min} characters`)
-            .required('Confirm Password is required'),
-        })
+    // handle display messages for error and success
     const handleMessage = (message, type) => {
         setMessage(message)
         setMessageType(type)

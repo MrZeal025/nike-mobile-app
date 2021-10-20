@@ -15,7 +15,8 @@ import {
     WelcomeImage
 } from '../components/style';
 
-const Welcome = ({ navigation }) => {
+const Welcome = ({ navigation, route }) => {
+    const { fullName, email, dateOfBirth } = route.params;
     return (
         <>
             <StatusBar style='dark'/>
@@ -25,9 +26,9 @@ const Welcome = ({ navigation }) => {
                         resizeMode = "cover"
                         source={require('./../assets/wl-op-1.jpg')}
                     />
-                    <PageTitle welcome={true}>Welcome, Ryan!</PageTitle>
-                    <SubTitle welcome={true}>ryannograles.025.gtsi@gmail.com</SubTitle>
-                    <SubTitle welcome={true}>Fri Feb 25 2000</SubTitle>
+                    <PageTitle welcome={true}>Welcome, { fullName }</PageTitle>
+                    <SubTitle welcome={true}>{email}</SubTitle>
+                    <SubTitle welcome={true}>{dateOfBirth}</SubTitle>
                     <Line/>
                     <StyledFormArea>
                         <Avatar 

@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 // components
 import { StatusBar } from 'expo-status-bar';
-import { View } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator  } from 'react-native';
+import { loginValidationSchema } from "../validations/auth";
 import { Formik } from 'formik';
 // styles
 import { 
@@ -23,18 +24,49 @@ import {
     ExtraText,
     ExtraView,
     TextLink,
-    TextLinkContent
+    TextLinkContent,
+    ErrorMessageBox
 } from '../components/style';
 import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
 // icons
 import { Octicons, Ionicons, Fontisto } from "@expo/vector-icons"
+// apis
+import { userSignIn } from '../apis/authentication';
 
 // deconstruction section
 const { darkLight, brand, primary } = Colors;
 
-const Login = ({navigation}) => {
-
+const Login = ({ navigation }) => {
+    
+    // behaviors
     const [hidePassword, setHidePassword] = useState(true);
+
+    // message displays
+    const [message, setMessage] = useState();
+    const [messageType, setMessageType] = useState("");
+
+    // handle display messages for error and success
+    const handleMessage = (message, type) => {
+        setMessage(message)
+        setMessageType(type)
+    }
+
+    // this will run the sign up api
+    const handleSignIn = async (values, setSubmitting) => {
+        handleMessage(null, '')
+        // if the password matches try to signup the user
+        try {
+            delete values.confirmPassword
+            const { data } =  await userSignIn(values)   
+            // if the sign up is successful navigate the user to the welcome page
+            navigation.navigate('Welcome', {...data.data})
+            setSubmitting(false)
+        } 
+        catch (error) {
+            setSubmitting(false);
+            handleMessage(error.response.data.message, "Error")
+        }
+    }
 
     return (
         <KeyboardAvoidingWrapper>
@@ -46,17 +78,17 @@ const Login = ({navigation}) => {
                         source={require('./../assets/nike-logo.png')} 
                     />
                     <PageTitle>Nike Shoes</PageTitle>
-                    <SubTitle>Account Login</SubTitle>
+                    <SubTitle>Account Sign-in</SubTitle>
                     <Formik 
                         initialValues={{ email: "", password: ""}}
-                        onSubmit={(values) => {
-                            console.log(values)
-                            navigation.navigate("Welcome");
+                        onSubmit={(values, {setSubmitting}) => {
+                            handleSignIn(values, setSubmitting)
                         }}
+                        validationSchema={loginValidationSchema}
                     >
                         {/* this if the function to handle the form interaction */}
                         {
-                            ({handleChange, handleBlur, handleSubmit, values}) => (
+                            ({ errors, touched, isSubmitting, handleChange, handleBlur, handleSubmit, values}) => (
                                 <StyledFormArea>
                                     <TextInput 
                                         label="Email Address" 
@@ -68,6 +100,7 @@ const Login = ({navigation}) => {
                                         value={values.email}
                                         keyboardType="email-address"
                                     />
+                                    { errors.email && touched.email && <ErrorMessageBox>{errors.email}</ErrorMessageBox> }
                                     <TextInput 
                                         label="Password" 
                                         icon="lock" 
@@ -81,12 +114,23 @@ const Login = ({navigation}) => {
                                         hidePassword={hidePassword}
                                         setHidePassword={setHidePassword}
                                     />
-                                    <MessageBox>...</MessageBox>
-                                    <StyledButton onPress={handleSubmit}>
-                                        <ButtonText>
-                                            Login
-                                        </ButtonText>
-                                    </StyledButton>
+                                    { errors.password && touched.password && <ErrorMessageBox>{errors.password}</ErrorMessageBox> }
+                                    {
+                                        message && <MessageBox type={messageType}>{message}</MessageBox>
+                                    }
+                                    {
+                                        !isSubmitting && <StyledButton  onPress={handleSubmit}>
+                                            <ButtonText>
+                                                Sign In
+                                            </ButtonText>
+                                        </StyledButton>
+                                    }
+                                    {/* perform this if the action is submitting something to the api  */}
+                                    {
+                                        isSubmitting && <StyledButton disabled={true}>
+                                            <ActivityIndicator size="large" color={primary} />
+                                        </StyledButton>
+                                    }
                                     <Line/>
                                     <StyledButton google={true} onPress={handleSubmit}>
                                         <Fontisto name="google" color={primary} size={25}/>
