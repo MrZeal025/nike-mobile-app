@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { View, Text, Image, TouchableOpacity } from "react-native";
 import Constants from "expo-constants";
 
 const StatusBarHeight = Constants.statusBarHeight;
@@ -12,10 +11,12 @@ export const Colors = {
     darkLight: "#9CA3AF",
     brand: "#6D28D9",
     green: "#10B981",
-    red: "#EF4444"
+    red: "#EF4444",
+    lightRed: "#ff7f7f",
+    lightGreen: "#4caf50"
 }
 
-const { primary, secondary, tertiary, darkLight, brand, green } = Colors;
+const { primary, secondary, tertiary, darkLight, brand, green, lightGreen, lightRed } = Colors;
 
 export const StyledContainer = styled.View`
     flex: 1;
@@ -32,7 +33,6 @@ export const InnerContainer = styled.View`
 
 export const WelcomeContainer = styled(InnerContainer)`
     padding: 25px;
-    padding-top: 10px;
     justify-content: center;
 `;
 
@@ -53,7 +53,7 @@ export const Avatar = styled.Image`
 `;
 
 export const WelcomeImage = styled.Image`
-    height: 65%;
+    height: 59%;
     min-width: 100%;
 `;
 
@@ -155,8 +155,18 @@ export const ButtonText = styled.Text`
 
 export const MessageBox = styled.Text`
     text-align: center;
-    font-size: 13px;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    color: white;
+    background-color: ${props => (props.type == "Success" ? lightGreen : lightRed)};
+`;
 
+export const ErrorMessageBox = styled.Text`
+    font-size: 12px;
+    color: red;
+    margin-bottom: 5px;
 `;
 
 export const Line = styled.View`

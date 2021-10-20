@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 // components
 import { StatusBar } from 'expo-status-bar';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
+import * as yup from "yup";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 // styles
@@ -20,6 +21,7 @@ import {
     ButtonText, 
     StyledTextInput,
     MessageBox,
+    ErrorMessageBox,
     Line,
     ExtraText,
     ExtraView,
@@ -31,28 +33,12 @@ import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
 import { Octicons, Ionicons } from "@expo/vector-icons"
 
 // apis
- import axios from "axios";
+import { userSignUp } from '../apis/authentication';
 
 // deconstruction section
-const { darkLight, brand } = Colors;
+const { darkLight, brand, primary } = Colors;
 
 const SignUp = ({ navigation }) => {
-
-    async function fetchData() {
-        try {
-            const data = await axios.get(`https://lit-spire-85210.herokuapp.com/api/user/${`6168fe990e66aa21c0eb0ec2`}`);
-            console.log(data.data)
-        } catch (error) {
-            console.log(error.response.data)
-        }
-    }
-
-    useEffect(() => {
-        
-       fetchData()
-
-    },[])
-
 
     // behaviors
     const [hidePassword, setHidePassword] = useState(true);
@@ -63,7 +49,7 @@ const SignUp = ({ navigation }) => {
     const [dateOfBirth, setDateofBirth] = useState('');
 
     // message displays
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState();
     const [messageType, setMessageType] = useState("");
 
     const onChangeDatePicker = (event, selectedDate) => {
@@ -72,12 +58,53 @@ const SignUp = ({ navigation }) => {
         setShowDateTimePicker(false);
         setDate(currentDate);
         setDateofBirth(currentDate);
-
-        console.log(dateOfBirth)
     }
 
     const showDatePicker = () => {
         setShowDateTimePicker(true);
+    }
+
+    // this will be the sign up validations
+    const signUpValidationSchema = yup.object().shape({
+        fullName: yup.string().required("Fullname is required"),
+        email: yup
+            .string()
+            .email("Please enter valid email")
+            .required('Email Address is Required'),
+        password: yup
+            .string()
+            .min(8, ({ min }) => `Password must be at least ${min} characters`)
+            .required('Password is required'),
+        confirmPassword: yup
+            .string()
+            .min(8, ({ min }) => `Password must be at least ${min} characters`)
+            .required('Confirm Password is required'),
+        })
+    const handleMessage = (message, type) => {
+        setMessage(message)
+        setMessageType(type)
+    }
+    
+    // this will run the sign up api
+    const handleSignUp = async (values, setSubmitting) => {
+        handleMessage(null, '')
+        if(values.password !== values.confirmPassword) {
+            handleMessage("Password doest not match", "Error")
+        } 
+        else {
+            // if the password matches try to signup the user
+            try {
+                delete values.confirmPassword
+               const { data } =  await userSignUp(values)   
+                // if the sign up is successful navigate the user to the welcome page
+                navigation.navigate('Welcome', {...data.data})
+                setSubmitting(false)
+            } 
+            catch (error) {
+                setSubmitting(false);
+                handleMessage(error.response.data.message, "Error")
+            }
+        }
     }
 
     return (
@@ -99,13 +126,16 @@ const SignUp = ({ navigation }) => {
                     )}
                     <Formik 
                         initialValues={{ fullName: "", email: "", dateOfBirth: "", password: "", confirmPassword: "" }}
-                        onSubmit={(values) => {
-                            values = {...values, dateOfBirth: dateOfBirth }
+                        onSubmit={(values, {setSubmitting}) => {
+                            const trimmedDateOfBirth = dateOfBirth.toString().split('00:00:00')[0].trim()
+                            values = {...values, dateOfBirth: trimmedDateOfBirth }
+                            handleSignUp(values, setSubmitting);
                         }}
+                        validationSchema={signUpValidationSchema}
                     >
                         {/* this if the function to handle the form interaction */}
                         {
-                            ({handleChange, handleBlur, handleSubmit, values}) => (
+                            ({ errors, touched, handleChange, handleBlur, handleSubmit, values, isSubmitting }) => (
                                 <StyledFormArea>
                                     <TextInput 
                                         label="Full Name" 
@@ -116,6 +146,7 @@ const SignUp = ({ navigation }) => {
                                         onBlur={handleBlur('fullName')}
                                         value={values.fullName}
                                     />
+                                    { errors.fullName && touched.fullName && <ErrorMessageBox>{errors.fullName}</ErrorMessageBox> }
                                     <TextInput 
                                         label="Email Address" 
                                         icon="mail" 
@@ -126,18 +157,20 @@ const SignUp = ({ navigation }) => {
                                         value={values.email}
                                         keyboardType="email-address"
                                     />
+                                    { errors.email && touched.email && <ErrorMessageBox>{errors.email}</ErrorMessageBox> }
                                     <TextInput 
                                         label="Date of Birth" 
                                         icon="calendar" 
-                                        placeholder="YYYY - MM - DD" 
+                                        placeholder="Mon Jan 1 2000" 
                                         placeholderTextColor={darkLight}
                                         onChangeText={handleChange('dateOfBirth')}
                                         onBlur={handleBlur('dateOfBirth')}
-                                        value={dateOfBirth ? dateOfBirth.toDateString(): 'test'}
+                                        value={dateOfBirth ? dateOfBirth.toDateString(): ''}
                                         isDate={true}
                                         editable={false}
                                         showDatePicker={showDatePicker}
                                     />
+                                    { errors.dateOfBirth && touched.dateOfBirth && <ErrorMessageBox>{errors.dateOfBirth}</ErrorMessageBox> }
                                     <TextInput 
                                         label="Password" 
                                         icon="lock" 
@@ -151,6 +184,7 @@ const SignUp = ({ navigation }) => {
                                         hidePassword={hidePassword}
                                         setHidePassword={setHidePassword}
                                     />
+                                    { errors.password && touched.password && <ErrorMessageBox>{errors.password}</ErrorMessageBox> }
                                     <TextInput 
                                         label="Confirm Password" 
                                         icon="lock" 
@@ -164,12 +198,22 @@ const SignUp = ({ navigation }) => {
                                         hidePassword={hidePassword}
                                         setHidePassword={setHidePassword}
                                     />
-                                    <MessageBox>...</MessageBox>
-                                    <StyledButton onPress={handleSubmit}>
-                                        <ButtonText>
-                                            Sign Up
-                                        </ButtonText>
-                                    </StyledButton>
+                                    { errors.confirmPassword && touched.confirmPassword && <ErrorMessageBox>{errors.confirmPassword}</ErrorMessageBox> }
+                                    { message &&  <MessageBox type={messageType}>{message}</MessageBox> }
+                                    {
+                                        !isSubmitting && <StyledButton  onPress={handleSubmit}>
+                                            <ButtonText>
+                                                Sign Up
+                                            </ButtonText>
+                                        </StyledButton>
+                                    }
+                                    {/* perform this if the action is submitting something to the api  */}
+                                    {
+                                        isSubmitting && <StyledButton disabled={true}>
+                                            <ActivityIndicator size="large" color={primary} />
+                                        </StyledButton>
+                                    }
+
                                     <Line/>
                                     <ExtraView>
                                         <ExtraText>Already have an account? </ExtraText>

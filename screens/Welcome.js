@@ -18,15 +18,16 @@ import {
 const Welcome = ({ navigation }) => {
     return (
         <>
-            <StatusBar style='light'/>
+            <StatusBar style='dark'/>
             <InnerContainer>
                 <WelcomeContainer>
                     <WelcomeImage 
-                        resizeMode = "contain"
+                        resizeMode = "cover"
                         source={require('./../assets/wl-op-1.jpg')}
                     />
                     <PageTitle welcome={true}>Welcome, Ryan!</PageTitle>
                     <SubTitle welcome={true}>ryannograles.025.gtsi@gmail.com</SubTitle>
+                    <SubTitle welcome={true}>Fri Feb 25 2000</SubTitle>
                     <Line/>
                     <StyledFormArea>
                         <Avatar 
