@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,  useContext } from 'react';
 // components
 import { StatusBar } from 'expo-status-bar';
-import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import { loginValidationSchema } from '../validations/auth';
 import { Formik } from 'formik';
 // styles
@@ -34,15 +34,15 @@ import { Octicons, Ionicons, Fontisto } from '@expo/vector-icons';
 import { userSignIn } from '../apis/authentication';
 
 import * as Google from "expo-google-app-auth";
+// storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// credential context
+import { CredentialsContext } from './../components/CredentialsContext';
 
 // deconstruction section
 const { darkLight, brand, primary } = Colors;
 
 const Login = ({ navigation }) => {
-
-    useEffect(() => {
-        handleMessage(null, '');
-    }, []);
 
     // behaviors
     const [hidePassword, setHidePassword] = useState(true);
@@ -51,6 +51,9 @@ const Login = ({ navigation }) => {
     const [messageType, setMessageType] = useState('');
     // google behavior
     const [googleSubmitting, setGoogleSubmitting] = useState(false);
+
+    // context
+    const { storedCredentials, setStoredCredentials } = useContext(CredentialsContext);
 
     // handle display messages for error and success
     const handleMessage = (message, type) => {
@@ -72,7 +75,7 @@ const Login = ({ navigation }) => {
             if(type === 'success'){
                 const { email, name, givenName, photoUrl } = user;
                 handleMessage("Google sign-in is successful", "Success");
-                setTimeout(() => navigation.navigate('Welcome', { email, name, givenName, photoUrl }), 1000)
+                persistLogin({ email, name, givenName, photoUrl }, "Login successful", "Success")
             }
             else {
                 handleMessage('Google sign in was cancelled!', "Error");
@@ -85,21 +88,33 @@ const Login = ({ navigation }) => {
         }
     }
 
-  // this will run the sign up api
-  const handleSignIn = async (values, setSubmitting) => {
-    handleMessage(null, '');
-    // if the password matches try to signup the user
-    try {
-      delete values.confirmPassword;
-      const { data } = await userSignIn(values);
-      // if the sign up is successful navigate the user to the welcome page
-      navigation.navigate('Welcome', { ...data.data });
-      setSubmitting(false);
-    } catch (error) {
-      setSubmitting(false);
-      handleMessage(error.response.data.message, 'Error');
+    const persistLogin = async (credemtials, message, status) => {
+        try {
+            await AsyncStorage.setItem('nikeshoesSampleCredentials', JSON.stringify(credemtials));
+            handleMessage(message, status);
+            setStoredCredentials(credemtials)
+        } 
+        catch (error) {
+            console.log(error)
+            handleMessage("Persisting login failed", 'Error');
+        }
     }
-  };
+
+    // this will run the sign up api
+    const handleSignIn = async (values, setSubmitting) => {
+        handleMessage(null, '');
+        // if the password matches try to signup the user
+        try {
+            delete values.confirmPassword;
+            const { data } = await userSignIn(values);
+            // if the sign up is successful navigate the user to the welcome page
+            persistLogin({...data.data }, "Login successful", "Success")
+            setSubmitting(false);
+        } catch (error) {
+            setSubmitting(false);
+            handleMessage(error.response.data.message, 'Error');
+        }
+    };
 
   return (
     <KeyboardAvoidingWrapper>

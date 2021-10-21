@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 // components
 import { StatusBar } from 'expo-status-bar';
 // styles
@@ -15,9 +15,28 @@ import {
     WelcomeImage
 } from '../components/style';
 
-const Welcome = ({ navigation, route }) => {
-    const { fullName, email, dateOfBirth, photoUrl, givenName } = route.params;
+// storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// credential context
+import { CredentialsContext } from './../components/CredentialsContext';
+
+const Welcome = () => {
+    
     const AvatarImg = photoUrl ? { uri: photoUrl } : require('./../assets/ako.jpg')
+   
+    // context
+    const { storedCredentials, setStoredCredentials } = useContext(CredentialsContext);
+    const { fullName, email, dateOfBirth, photoUrl, givenName } = storedCredentials;
+
+    const clearLogin = async () => {
+        try {
+            await AsyncStorage.removeItem('nikeshoesSampleCredentials');
+            setStoredCredentials(null);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <>
             <StatusBar style='dark'/>
@@ -36,7 +55,7 @@ const Welcome = ({ navigation, route }) => {
                             resizeMode = "cover"
                             source={AvatarImg} 
                         />
-                        <StyledButton onPress={() =>  navigation.navigate("Login")}>
+                        <StyledButton onPress={clearLogin}>
                             <ButtonText>
                                 Logout
                             </ButtonText>

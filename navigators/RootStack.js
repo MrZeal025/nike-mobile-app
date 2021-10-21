@@ -15,25 +15,40 @@ import { Colors } from '../components/style';
 const Stack = createNativeStackNavigator();
 const { primary, tertiary } = Colors;
 
+// credential context
+import { CredentialsContext } from './../components/CredentialsContext';
+
 const RootStack = () => {
     return (
-        <NavigationContainer>
-            <Stack.Navigator
-                screenOptions={{
-                    headerStyle: {
-                        backgroundColor: 'transparent'
-                    },
-                    headerTintColor: tertiary,
-                    headerTransparent: true,
-                    headerTitle: '',
-                }}
-                initialRouteName='Login'
-            >
-                <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Login" component={Login} />
-                <Stack.Screen options={{ headerShadowVisible: false}} name="Sign Up" component={SignUp} />
-                <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Welcome" component={Welcome} />
-            </Stack.Navigator>
-        </NavigationContainer>
+        <CredentialsContext.Consumer>
+            {({storedCredentials}) => (
+                <NavigationContainer>
+                    <Stack.Navigator
+                        screenOptions={{
+                            headerStyle: {
+                                backgroundColor: 'transparent'
+                            },
+                            headerTintColor: tertiary,
+                            headerTransparent: true,
+                            headerTitle: '',
+                        }}
+                        initialRouteName='Login'
+                    >
+                        { 
+                            storedCredentials 
+                            ? 
+                                <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Welcome" component={Welcome} /> 
+                            :
+                            <>
+                               <Stack.Screen options={{ headerTintColor: primary, headerShadowVisible: false }} name="Login" component={Login} />
+                                <Stack.Screen options={{ headerShadowVisible: false}} name="Sign Up" component={SignUp} />
+                            </>
+                        }
+                        
+                    </Stack.Navigator>
+                </NavigationContainer>
+            )}
+        </CredentialsContext.Consumer>
     )
 }
 

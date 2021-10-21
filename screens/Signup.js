@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 // components
 import { StatusBar } from 'expo-status-bar';
 import { View, TouchableOpacity, ActivityIndicator } from 'react-native';
@@ -32,6 +32,12 @@ import KeyboardAvoidingWrapper from '../components/KeyboardAvoidingWrapper';
 import { Octicons, Ionicons } from "@expo/vector-icons"
 // apis
 import { userSignUp } from '../apis/authentication';
+// storage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+// credential context
+import { CredentialsContext } from './../components/CredentialsContext';
+
+
 // deconstruction section
 const { darkLight, brand, primary } = Colors;
 
@@ -48,6 +54,9 @@ const SignUp = ({ navigation }) => {
     // message displays
     const [message, setMessage] = useState();
     const [messageType, setMessageType] = useState("");
+
+    // context
+    const { storedCredentials, setStoredCredentials } = useContext(CredentialsContext);
 
     const onChangeDatePicker = (event, selectedDate) => {
         const currentDate = selectedDate || date;
@@ -79,13 +88,25 @@ const SignUp = ({ navigation }) => {
                 delete values.confirmPassword
                const { data } =  await userSignUp(values)   
                 // if the sign up is successful navigate the user to the welcome page
-                navigation.navigate('Welcome', {...data.data})
+                persistLogin({ ...data.data }, "Sign up successful", "Success")
                 setSubmitting(false)
             } 
             catch (error) {
                 setSubmitting(false);
                 handleMessage(error.response.data.message, "Error")
             }
+        }
+    }
+
+    const persistLogin = async (credemtials, message, status) => {
+        try {
+            await AsyncStorage.setItem('nikeshoesSampleCredentials', JSON.stringify(credemtials));
+            handleMessage(message, status);
+            setStoredCredentials(credemtials)
+        } 
+        catch (error) {
+            console.log(error)
+            handleMessage("Persisting sign up failed", 'Error');
         }
     }
 
