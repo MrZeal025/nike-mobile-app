@@ -16,24 +16,25 @@ import {
 } from '../components/style';
 
 const Welcome = ({ navigation, route }) => {
-    const { fullName, email, dateOfBirth } = route.params;
+    const { fullName, email, dateOfBirth, photoUrl, givenName } = route.params;
+    const AvatarImg = photoUrl ? { uri: photoUrl } : require('./../assets/ako.jpg')
     return (
         <>
             <StatusBar style='dark'/>
             <InnerContainer>
                 <WelcomeContainer>
                     <WelcomeImage 
-                        resizeMode = "cover"
+                        resizeMode = "contain"
                         source={require('./../assets/wl-op-1.jpg')}
                     />
-                    <PageTitle welcome={true}>Welcome, { fullName }</PageTitle>
+                    <PageTitle welcome={true}>Welcome, { fullName ? fullName : givenName }!</PageTitle>
                     <SubTitle welcome={true}>{email}</SubTitle>
                     <SubTitle welcome={true}>{dateOfBirth}</SubTitle>
                     <Line/>
                     <StyledFormArea>
                         <Avatar 
                             resizeMode = "cover"
-                            source={require('./../assets/ako.jpg')} 
+                            source={AvatarImg} 
                         />
                         <StyledButton onPress={() =>  navigation.navigate("Login")}>
                             <ButtonText>
